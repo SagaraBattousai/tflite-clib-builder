@@ -30,6 +30,11 @@ UNIX_SHARED_LIB_EXT = ".so"
 WIN_SHARED_LIB_EXT = ".dll"
 WIN_LINK_LIB_EXT = ".lib"  # Could also be .dll.a
 
+HEADER_INCLUDE_BASE_PATH = "include/tensorflow/lite"
+
+
+HEADER_SOURCE_ROOT = "../tensorflow_src/tensorflow/lite"
+
 
 # May need to make more complex later (may also do stuff for cmake_args)
 def get_platform_for_host() -> str:
@@ -139,13 +144,11 @@ def build(args):
     if args.os == WINDOWS_PLATFORM:
         lib_dir += "/Debug"
 
-
     lib_out = ""
-    #TODO: Handle error file not exists etc
+    # TODO: Handle error file not exists etc
     with open(f"{build_dir}/{BUILD_OUTPUT_DIR_FILENAME}", "r", encoding="utf-8") as f:
         # Safe enough as should be small unless someone maliciously adds to it.
         lib_out = f.read()
-
 
     if args.dry_run:
         print("cmake", "--build", build_dir)
@@ -165,6 +168,39 @@ def build(args):
         else:
             shutil.copy2(f"{lib_dir}/{LIB_BASE_NAME}{UNIX_SHARED_LIB_EXT}", lib_out)
 
+    header_dst_root = f"{lib_out}/{HEADER_INCLUDE_BASE_PATH}"
+    header_c_dst_root = f"{lib_out}/{HEADER_INCLUDE_BASE_PATH}/c"
+    header_core_c_dst_root = f"{lib_out}/{HEADER_INCLUDE_BASE_PATH}/core/c"
+    header_core_async_c_dst_root = f"{lib_out}/{HEADER_INCLUDE_BASE_PATH}/core/async/c"
+
+    os.makedirs(header_c_dst_root, exist_ok=True)
+    os.makedirs(header_core_c_dst_root, exist_ok=True)
+    os.makedirs(header_core_async_c_dst_root, exist_ok=True)
+
+    shutil.copy2(f"{HEADER_SOURCE_ROOT}/builtin_ops.h", header_dst_root)
+
+    shutil.copy2(f"{HEADER_SOURCE_ROOT}/c/c_api.h", header_c_dst_root)
+    shutil.copy2(f"{HEADER_SOURCE_ROOT}/c/c_api_experimental.h", header_c_dst_root)
+    shutil.copy2(f"{HEADER_SOURCE_ROOT}/c/c_api_types.h", header_c_dst_root)
+    shutil.copy2(f"{HEADER_SOURCE_ROOT}/c/common.h", header_c_dst_root)
+
+    core_c_headers = filter(
+        lambda s: s.endswith(".h"),
+        os.listdir(f"{HEADER_SOURCE_ROOT}/core/c"),
+    )
+
+    for header in core_c_headers:
+        shutil.copy2(f"{HEADER_SOURCE_ROOT}/core/c/{header}", header_core_c_dst_root)
+
+    core_async_c_headers = filter(
+        lambda s: s.endswith(".h"),
+        os.listdir(f"{HEADER_SOURCE_ROOT}/core/async/c"),
+    )
+
+    for header in core_async_c_headers:
+        shutil.copy2(
+            f"{HEADER_SOURCE_ROOT}/core/async/c/{header}", header_core_async_c_dst_root
+        )
 
 
 def main() -> int:
