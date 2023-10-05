@@ -1,0 +1,3 @@
+[submodule "tensorflow"]
+	path = tensorflow_src
+	url = git@github.com:SagaraBattousai/tensorflow.git
