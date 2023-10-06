@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tflite_clib_builder"
+version = "0.0.1"
+description = "A Python script to build  Tensorflow-lite's C dynamic/shared library for Windows Unix and Android (No more having to add Tensorflow as a git sub-repo :) )"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [
+    {name = "James Calo", email = "jamesafcalo@gmail.com"},
+]
+#Bit OTT for what this is
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Information Technology",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Operating System :: OS Independent",
+  "Topic :: Documentation :: Sphinx",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+[project.scripts]
+tflite-clib-builder = "tflite_clib_builder.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["tflite_clib_builder"]
+
+[tool.black]
+preview = true
