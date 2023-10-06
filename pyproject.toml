@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [project.scripts]
-tflite-clib-builder = "tflite_clib_builder.__main__:main"
+tflite_clib_builder = "tflite_clib_builder.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["tflite_clib_builder"]

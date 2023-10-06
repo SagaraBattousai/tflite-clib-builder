@@ -40,16 +40,11 @@ class WindowsBuilder(AbstractBuilder):
 
         lib_out = self.get_library_dest()
         if self.dry_run:
-            print(
-                f"copying {self.output_library_dir()}/{self.library_name()}"
-                f"to {lib_out}",
-            )
+            # May need to check .dll.a if .lib is not found.
             print(
                 f"copying {self.output_build_dir()}/"
                 f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT} to {lib_out}",
             )
-            # May need to check .dll.a if .lib is not found.
         else:
-            shutil.copy2(f"{self.output_library_dir()}/{self.library_name()}", lib_out)
-            shutil.copy2(f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}", lib_out)
             # May need to check .dll.a if .lib is not found.
+            shutil.copy2(f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}", lib_out)

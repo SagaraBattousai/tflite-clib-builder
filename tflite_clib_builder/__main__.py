@@ -1,12 +1,6 @@
 """ MODULE DOC STRING """
 
 import sys
-
-import os
-
-# import os.path
-import shutil
-import subprocess
 import argparse
 
 from tflite_clib_builder import builder_factory as factory
@@ -23,19 +17,27 @@ def main() -> int:
         # epilog="",
     )
 
-    subparsers = parser.add_subparsers(required=True, help="Sub-Command help")
+    parent_parser = argparse.ArgumentParser(add_help=False)
 
-    configure_parser = subparsers.add_parser(
-        "configure",
-        help="Configure step for C library build",
-    )
+    parent_parser.add_argument("--dry_run", action="store_true")
 
-    configure_parser.add_argument(
+    parent_parser.add_argument(
         "--target_platform",
         "--os",
         choices=[*factory.BUILDER_PLATFORM_MAP.keys(), HOST_PLATFORM],
         type=str.lower,
         default=HOST_PLATFORM,
+    )
+
+    parent_parser.add_argument("-b", "--build_dir")
+
+
+    subparsers = parser.add_subparsers(required=True, help="Sub-Command help")
+
+    configure_parser = subparsers.add_parser(
+        "configure",
+        help="Configure step for C library build",
+        parents=[parent_parser],
     )
 
     configure_parser.add_argument(
@@ -44,9 +46,6 @@ def main() -> int:
         type=str.capitalize,
         default="Release",
     )
-
-    # # Find way to add this to parent parser as is used by both
-    # configure_parser.add_argument("-b", "--build_dir", default=os.getcwd())
 
     # Find way to add this to parent parser as is used by both
     configure_parser.add_argument("-g", "-G", "--generator")
@@ -81,32 +80,24 @@ def main() -> int:
         type=str.lower,
     )
 
-    configure_parser.add_argument("--dry_run", action="store_true")
-
-    # configure_parser.set_defaults(func=configure)
+    configure_parser.set_defaults(subparser_name="configure")
 
     build_parser = subparsers.add_parser(
         "build",
         help="Build step for C library build",
+        parents=[parent_parser],
     )
 
-    build_parser.add_argument(
-        "--target_platform",
-        "--os",
-        choices=[*factory.BUILDER_PLATFORM_MAP.keys(), HOST_PLATFORM],
-        type=str.lower,
-        default=HOST_PLATFORM,
-    )
-
-    build_parser.add_argument("--dry_run", action="store_true")
-
-    # build_parser.set_defaults(func=build)
+    build_parser.set_defaults(subparser_name="build")
 
     args = parser.parse_args()
 
-    # args.func(args)
     builder = factory.get_builder(**vars(args))
-    builder.configure()
+    if args.subparser_name == "configure":
+        builder.configure()
+    elif args.subparser_name == "build":
+        builder.build()
+    #No other cases
 
     return 0
 

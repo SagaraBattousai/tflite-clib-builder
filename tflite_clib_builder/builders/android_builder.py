@@ -1,11 +1,12 @@
 """AndroidBuilder Module"""
 # from typing import overload #<- not until 3.12
 import os
-import shutil
 from tflite_clib_builder.builders.abstract_builder import AbstractBuilder
 
 
 class AndroidBuilder(AbstractBuilder):
+    """Android Builder Class"""
+
     NDK_VERSION_SEP = "."
 
     def __init__(
@@ -91,16 +92,3 @@ class AndroidBuilder(AbstractBuilder):
         )
 
         return flags
-
-    # override
-    def build(self):
-        super().build()
-
-        lib_out = self.get_library_dest()
-        if self.dry_run:
-            print(
-                f"copying {self.output_library_dir()}/{self.library_name()}"
-                f"to {lib_out}",
-            )
-        else:
-            shutil.copy2(f"{self.output_library_dir()}/{self.library_name()}", lib_out)

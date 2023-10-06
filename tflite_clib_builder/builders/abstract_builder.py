@@ -14,7 +14,7 @@ class AbstractBuilder(metaclass=ABCMeta):
     # DEFAULT_TENSORFLOW_LITE_C_CMAKE_PATH = (
     TENSORFLOW_LITE_C_CMAKE_PATH = (
         f"{os.path.dirname(__spec__.origin)}"  # type: ignore[name-defined]
-        "/../tensorflow_src/tensorflow/lite/c"
+        "/../../tensorflow_src/tensorflow/lite/c"
     )
 
     LIBRARY_BASE_NAME = "tensorflowlite_c"
@@ -26,11 +26,13 @@ class AbstractBuilder(metaclass=ABCMeta):
     def __init__(
         self,
         build_type: str = "Release",
+        build_dir: str | None = None,
         generator: str | None = None,
         dry_run: bool = False,
         **_kwargs,
     ):
         self.build_type: str = build_type
+        self.build_dir = build_dir
         self.generator = generator
         self.dry_run = dry_run
 
@@ -60,7 +62,8 @@ class AbstractBuilder(metaclass=ABCMeta):
         # Separate for os's as they usually differ on the generator used
         # (will this cause issues with build types?).
         # No point having individual build dirs since that would be a huge waste
-        return f"{self.platform()}/{self.build_type}"
+        root_dir = f"{self.platform()}/{self.build_type}"
+        return root_dir if not self.build_dir else f"{self.build_dir}/{root_dir}"
 
     def output_build_dir(self) -> str:
         return f"{self.output_root_dir()}/build"
@@ -120,7 +123,7 @@ class AbstractBuilder(metaclass=ABCMeta):
                 f.write(self.output_root_dir())
             subprocess.run(["cmake", *flags], check=False)
 
-    @abstractmethod
+    # virtual
     def build(self):
         lib_out = self.get_library_dest()
 
@@ -129,23 +132,13 @@ class AbstractBuilder(metaclass=ABCMeta):
         if self.dry_run:
             print("cmake", "--build", self.output_build_dir())
             print("Copying library:", self.library_name(), "to", lib_out)
-            """
-            #ISSUE -> Subclass must handle this!
-            if args.os == WINDOWS_PLATFORM:
-            else:
-            """
+            print(
+                f"copying {self.output_library_dir()}/{self.library_name()}"
+                f" to {lib_out}",
+            )
         else:
             subprocess.run(["cmake", "--build", self.output_build_dir()], check=True)
-
-            """
-            #ISSUE -> Subclass must handle this!
-            if args.os == WINDOWS_PLATFORM:
-            else:
-                shutil.copy2(
-                    f"{lib_dir}/{LINUX_SHARED_PREFIX}{LIB_BASE_NAME}{LINUX_SHARED_LIB_EXT}",
-                    lib_out,
-                )
-            """
+            shutil.copy2(f"{self.output_library_dir()}/{self.library_name()}", lib_out)
 
     def copy_headers_to_lib(self, lib_out: str):
         header_dst_root = f"{lib_out}/{self.HEADER_INCLUDE_BASE_PATH}"
