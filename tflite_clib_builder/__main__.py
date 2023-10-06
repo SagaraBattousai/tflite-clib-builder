@@ -38,7 +38,6 @@ def main() -> int:
         default="arm64-v8a",
     )
 
-
     subparsers = parser.add_subparsers(required=True, help="Sub-Command help")
 
     configure_parser = subparsers.add_parser(
@@ -97,7 +96,7 @@ def main() -> int:
         builder.configure()
     elif args.subparser_name == "build":
         builder.build()
-    #No other cases
+    # No other cases
 
     return 0
 

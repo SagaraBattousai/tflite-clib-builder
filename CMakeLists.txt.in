@@ -1,0 +1,93 @@
+
+set(TFLITE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/tensorflowlite_c")
+
+add_library(tensorflowlite_c SHARED IMPORTED)
+
+set_property(
+  TARGET tensorflowlite_c APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG
+  )
+
+set_property(
+  TARGET tensorflowlite_c APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE
+  )
+
+set_target_properties(tensorflowlite_c PROPERTIES
+  MAP_IMPORTED_CONFIG_MINSIZEREL Release
+  MAP_IMPORTED_CONFIG_RELWITHDEBINFO Release
+  )
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+  set_target_properties(tensorflowlite_c PROPERTIES 
+    IMPORTED_LOCATION_DEBUG "${TFLITE_ROOT}/lib/windows/Debug/tensorflowlite_c.dll"
+    IMPORTED_IMPLIB_DEBUG "${TFLITE_ROOT}/lib/windows/Debug/tensorflowlite_c.lib"
+
+    IMPORTED_LOCATION_RELEASE "${TFLITE_ROOT}/lib/windows/Release/tensorflowlite_c.dll"
+    IMPORTED_IMPLIB_RELEASE "${TFLITE_ROOT}/lib/windows/Release/tensorflowlite_c.lib"
+    )
+
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Android")
+  set(ANDROID_LIB_ROOT "${TFLITE_ROOT}/lib/android/${ANDROID_ABI}")
+  if(EXISTS "${ANDROID_LIB_ROOT}/${ANDROID_PLATFORM}")
+    set(ANDROID_PLATFORM_LIB_ROOT "${ANDROID_LIB_ROOT}/${ANDROID_PLATFORM}")
+    set_target_properties(tensorflowlite_c PROPERTIES 
+      IMPORTED_LOCATION_DEBUG "${ANDROID_PLATFORM_LIB_ROOT}/Debug/libtensorflowlite_c.so"
+      IMPORTED_LOCATION_RELEASE "${ANDROID_PLATFORM_LIB_ROOT}/Release/libtensorflowlite_c.so"
+    )
+  else()
+    set_target_properties(tensorflowlite_c PROPERTIES 
+      IMPORTED_LOCATION_DEBUG "${ANDROID_LIB_ROOT}/Debug/libtensorflowlite_c.so"
+      IMPORTED_LOCATION_RELEASE "${ANDROID_LIB_ROOT}/Release/libtensorflowlite_c.so"
+    )
+  endif()
+
+else()
+  if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    message(WARNING "System name: ${CMAKE_SYSTEM_NAME} is not \"directly\" supported. Defaulting to \"Linux\"")
+  endif()
+  set_target_properties(tensorflowlite_c PROPERTIES 
+    IMPORTED_LOCATION_DEBUG "${TFLITE_ROOT}/lib/linux/Debug/libtensorflowlite_c.so"
+    IMPORTED_LOCATION_RELEASE "${TFLITE_ROOT}/lib/linux/Release/libtensorflowlite_c.so"
+    )
+
+endif()
+
+set(TENSORFLOWLITE_C_MODULE_ROOT "${TFLITE_ROOT}/include")
+
+set(tensorflowlite_c_module
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/builtin_ops.h"
+
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/c/c_api.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/c/c_api_experimental.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/c/c_api_types.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/c/common.h"
+
+  #Remaining are private but imported libs can't (obviously) have that
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/builtin_op_data.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/c_api.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/c_api_experimental.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/c_api_opaque.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/c_api_types.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/common.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/c/registration_external.h"
+
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/async/c/async_kernel.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/async/c/async_signature_runner.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/async/c/internal.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/async/c/task.h"
+  "${TENSORFLOWLITE_C_MODULE_ROOT}/tensorflow/lite/core/async/c/types.h"
+  )
+
+target_sources(tensorflowlite_c INTERFACE
+  FILE_SET HEADERS
+  TYPE HEADERS
+  BASE_DIRS ${TENSORFLOWLITE_C_MODULE_ROOT}
+  FILES ${tensorflowlite_c_module}
+  )
+
+
+
+
+
+
+
+# vim filetype setting vi: ft=cmake

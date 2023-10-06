@@ -49,5 +49,6 @@ class WindowsBuilder(AbstractBuilder):
             # May need to check .dll.a if .lib is not found.
             shutil.copy2(
                 f"{self.library_build_dir()}/"
-                f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}", lib_out
+                f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}",
+                lib_out,
             )

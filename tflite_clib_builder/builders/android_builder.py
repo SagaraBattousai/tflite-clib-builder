@@ -12,11 +12,11 @@ class AndroidBuilder(AbstractBuilder):
     def __init__(
         self,
         android_stl: str = "c++_shared",
-        android_abi: str | None = "arm64-v8a", #None gets passed in from argparse
+        android_abi: str | None = "arm64-v8a",  # None gets passed in from argparse
         android_platform: str | None = None,
         android_sdk_path: str | None = None,
         ndk_version: str | None = None,
-        generator: str | None = "Ninja", #None gets passed in from argparse
+        generator: str | None = "Ninja",  # None gets passed in from argparse
         **kwargs,
     ):
         if generator is None:
@@ -40,18 +40,24 @@ class AndroidBuilder(AbstractBuilder):
     def shared_library_extension(cls) -> str:
         return ".so"
 
-    #override
+    # override
     def build_dir(self) -> str:
         # root_dir = f"{super().build_dir()}/{self.android_abi}"
         return f"{super().build_dir()}/{self.android_abi}"
 
-
     def library_output_dir(self) -> str:
-        root_dir = f"{super().library_output_dir()}/{self.android_abi}"
+        base_dir = f"{self.LIBRARY_BASE_NAME}/lib/{self.platform()}/{self.android_abi}"
+
+        root_dir = (
+            base_dir
+            if not self.android_platform
+            else f"{base_dir}/{self.android_platform}"
+        )
+
         return (
             root_dir
-            if not self.android_platform
-            else f"{root_dir}/{self.android_platform}"
+            if not self.build_root
+            else f"{self.build_root}/{root_dir}/{self.build_type}"
         )
 
     # override
@@ -66,7 +72,7 @@ class AndroidBuilder(AbstractBuilder):
         # Could make constructor arg required
         if not self.android_sdk_path:
             raise RuntimeError(
-                "When configuring for android, android_android_sdk_path must be set."
+                "When configuring for android, android_sdk_path must be set."
             )
 
         # Could also move to constructor (especially if above comment is applied)
