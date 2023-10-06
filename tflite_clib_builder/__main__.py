@@ -19,7 +19,7 @@ def main() -> int:
 
     parent_parser = argparse.ArgumentParser(add_help=False)
 
-    parent_parser.add_argument("--dry_run", action="store_true")
+    parent_parser.add_argument("--dry_run", "--dry-run", action="store_true")
 
     parent_parser.add_argument(
         "--target_platform",
@@ -29,7 +29,14 @@ def main() -> int:
         default=HOST_PLATFORM,
     )
 
-    parent_parser.add_argument("-b", "--build_dir")
+    parent_parser.add_argument("-b", "--build_root", "--build_dir")
+
+    parent_parser.add_argument(
+        "--android_abi",
+        choices=["arm64-v8a", "armeabi-v7a", "x86_64", "x86"],
+        type=str.lower,
+        default="arm64-v8a",
+    )
 
 
     subparsers = parser.add_subparsers(required=True, help="Sub-Command help")
@@ -61,13 +68,6 @@ def main() -> int:
     configure_parser.add_argument(
         "--android_platform",
         type=str.lower,
-    )
-
-    configure_parser.add_argument(
-        "--android_abi",
-        choices=["arm64-v8a", "armeabi-v7a", "x86_64", "x86"],
-        type=str.lower,
-        default="arm64-v8a",
     )
 
     configure_parser.add_argument(

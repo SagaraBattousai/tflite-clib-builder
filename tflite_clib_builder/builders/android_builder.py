@@ -12,16 +12,18 @@ class AndroidBuilder(AbstractBuilder):
     def __init__(
         self,
         android_stl: str = "c++_shared",
-        android_abi: str = "arm64-v8a",
+        android_abi: str | None = "arm64-v8a", #None gets passed in from argparse
         android_platform: str | None = None,
         android_sdk_path: str | None = None,
         ndk_version: str | None = None,
-        generator: str = "Ninja",
+        generator: str | None = "Ninja", #None gets passed in from argparse
         **kwargs,
     ):
+        if generator is None:
+            generator = "Ninja"
         super().__init__(generator=generator, **kwargs)
         self.android_stl = android_stl
-        self.android_abi = android_abi
+        self.android_abi = android_abi if android_abi else "arm64-v8a"
         self.android_platform = android_platform
         self.android_sdk_path = android_sdk_path
         self.ndk_version = ndk_version
@@ -38,8 +40,14 @@ class AndroidBuilder(AbstractBuilder):
     def shared_library_extension(cls) -> str:
         return ".so"
 
-    def output_root_dir(self) -> str:
-        root_dir = f"{super().output_root_dir()}/{self.android_abi}"
+    #override
+    def build_dir(self) -> str:
+        # root_dir = f"{super().build_dir()}/{self.android_abi}"
+        return f"{super().build_dir()}/{self.android_abi}"
+
+
+    def library_output_dir(self) -> str:
+        root_dir = f"{super().library_output_dir()}/{self.android_abi}"
         return (
             root_dir
             if not self.android_platform

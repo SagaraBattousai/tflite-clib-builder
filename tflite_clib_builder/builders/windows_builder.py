@@ -22,8 +22,8 @@ class WindowsBuilder(AbstractBuilder):
         return ".dll"
 
     # override
-    def output_library_dir(self) -> str:
-        return f"{self.output_build_dir()}/Debug"
+    def library_build_dir(self) -> str:
+        return f"{super().library_build_dir()}/Debug"
 
     # override
     def cmake_flags(self) -> list[str]:
@@ -42,9 +42,12 @@ class WindowsBuilder(AbstractBuilder):
         if self.dry_run:
             # May need to check .dll.a if .lib is not found.
             print(
-                f"copying {self.output_build_dir()}/"
+                f"copying {self.library_build_dir()}/"
                 f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT} to {lib_out}",
             )
         else:
             # May need to check .dll.a if .lib is not found.
-            shutil.copy2(f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}", lib_out)
+            shutil.copy2(
+                f"{self.library_build_dir()}/"
+                f"{self.LIBRARY_BASE_NAME}{self.LINK_LIB_EXT}", lib_out
+            )
