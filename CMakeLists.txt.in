@@ -1,7 +1,7 @@
 
-set(TFLITE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/tensorflowlite_c")
+set(TFLITE_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
 
-add_library(tensorflowlite_c SHARED IMPORTED)
+add_library(tensorflowlite_c SHARED IMPORTED GLOBAL)
 
 set_property(
   TARGET tensorflowlite_c APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG
