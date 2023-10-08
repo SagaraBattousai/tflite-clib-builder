@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tflite_clib_builder"
-version = "1.0.0"
+version = "1.0.1"
 description = "A Python script to build  Tensorflow-lite's C dynamic/shared library for Windows Unix and Android (No more having to add Tensorflow as a git sub-repo :) )"
 readme = "README.rst"
 requires-python = ">=3.9"
